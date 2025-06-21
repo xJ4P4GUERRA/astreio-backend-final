@@ -20,7 +20,7 @@ app.use(express.json());
 // Lista de endereços permitidos a se conectar com a API
 const allowedOrigins = [
   'http://localhost:3000', // Para seus testes locais no futuro
-  'https://SUA-URL-DO-FRONTEND.vercel.app' // <-- SUBSTITUA PELA SUA URL REAL DA VERCEL
+  'https://rastreio-frontend.vercel.app' // Exemplo - SUBSTITUA PELA SUA URL REAL DA VERCEL
 ];
 
 app.use(cors({
@@ -47,7 +47,9 @@ mongoose.connect(MONGO_URI)
     console.error('Erro ao conectar ao MongoDB:', err.message);
     process.exit(1); // Encerra a aplicação se a conexão falhar
   });
-s
+
+// A LETRA 's' QUE ESTAVA AQUI FOI REMOVIDA.
+
 // Rota de teste simples
 app.get('/', (req, res) => {
   res.send('API de Rastreamento funcionando!');
