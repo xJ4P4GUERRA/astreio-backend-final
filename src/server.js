@@ -1,31 +1,28 @@
 // backend/src/server.js
-require('dotenv').config(); // Carrega as variáveis de ambiente do .env
+require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors'); // Importa o pacote cors
+const cors = require('cors');
 
 const clienteRoutes = require('./routes/clienteRoutes');
 const rastreioRoutes = require('./routes/rastreioRoutes');
-const authRoutes = require('./routes/authRoutes'); // Importa as rotas de autenticação
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
-// Middleware para parsear JSON no corpo das requisições
 app.use(express.json());
 
-// --- CONFIGURAÇÃO CORRETA DO CORS ---
-// Lista de endereços permitidos a se conectar com a API
+// --- CONFIGURAÇÃO DE CORS FINAL ---
 const allowedOrigins = [
-  'http://localhost:3000', // Para seus testes locais no futuro
-  'https://rastreio-frontend.vercel.app' // Exemplo - SUBSTITUA PELA SUA URL REAL DA VERCEL
+  'http://localhost:3000',
+  'https://transportadoracentral.vercel.app' // <-- SUA URL CORRETA ADICIONADA AQUI!
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Permite requisições sem 'origin' (como do Thunder Client) ou que estejam na lista
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -38,17 +35,14 @@ app.use(cors({
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('MongoDB conectado com sucesso!');
-    // Inicia o servidor Express APENAS APÓS a conexão com o DB
     app.listen(PORT, () => {
       console.log(`Servidor rodando na porta ${PORT}`);
     });
   })
   .catch(err => {
     console.error('Erro ao conectar ao MongoDB:', err.message);
-    process.exit(1); // Encerra a aplicação se a conexão falhar
+    process.exit(1);
   });
-
-// A LETRA 's' QUE ESTAVA AQUI FOI REMOVIDA.
 
 // Rota de teste simples
 app.get('/', (req, res) => {
@@ -58,4 +52,4 @@ app.get('/', (req, res) => {
 // Adiciona as rotas da API
 app.use('/api/clientes', clienteRoutes);
 app.use('/api/rastreios', rastreioRoutes);
-app.use('/api/auth', authRoutes); // Adiciona as rotas de autenticação
+app.use('/api/auth', authRoutes);
