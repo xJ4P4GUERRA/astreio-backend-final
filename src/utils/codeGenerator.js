@@ -1,28 +1,32 @@
-// backend/src/utils/codeGenerator.js
-const Rastreio = require('../models/Rastreio'); // Precisamos do modelo de Rastreio para verificar a unicidade
+// backend/src/middleware/authMiddleware.js
+const jwt = require('jsonwebtoken');
 
-const generateUniqueCode = async () => {
-  let code;
-  let isUnique = false;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-  // Loop para gerar códigos até encontrar um que não exista no banco de dados
-  while (!isUnique) {
-    // Gera um código alfanumérico de 13 caracteres (ex: AB123456789BR)
-    // Pode ajustar o formato se preferir, ex: 3 letras, 9 números, 2 letras.
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < 13; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    code = result;
-
-    // Verifica se o código já existe no banco de dados
-    const existingRastreio = await Rastreio.findOne({ codigoRastreio: code });
-    if (!existingRastreio) {
-      isUnique = true; // Se não encontrou, o código é único
+const protect = async (req, res, next) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET);
+      req.user = decoded.user; // Anexa o payload (id e role) ao request
+      next();
+    } catch (error) {
+      return res.status(401).json({ msg: 'Não autorizado, token inválido.' });
     }
   }
-  return code;
+  if (!token) {
+    return res.status(401).json({ msg: 'Não autorizado, nenhum token fornecido.' });
+  }
 };
 
-module.exports = generateUniqueCode;
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ msg: `Acesso negado. Requer o cargo de: ${roles.join(' ou ')}` });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorize };

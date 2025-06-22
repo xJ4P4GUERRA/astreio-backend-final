@@ -15,21 +15,9 @@ const MONGO_URI = process.env.MONGO_URI;
 
 app.use(express.json());
 
-// --- CONFIGURAÇÃO DE CORS FINAL ---
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://transportadoracentral.vercel.app' // <-- SUA URL CORRETA ADICIONADA AQUI!
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Não permitido pela política de CORS'));
-    }
-  }
-}));
+// --- CONFIGURAÇÃO DE CORS FINAL (DESATIVADA PARA FINS DE TESTE/DESENVOLVIMENTO) ---
+// Remova ou comente a configuração de allowedOrigins e use o cors() sem opções
+app.use(cors()); // Permite todas as origens (NÃO RECOMENDADO EM PRODUÇÃO)
 
 // Conexão com o MongoDB
 mongoose.connect(MONGO_URI)
